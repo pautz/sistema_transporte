@@ -23,3 +23,10 @@ reservapassagem.php
 $cx = new mysqli("127.0.0.1", "username", "password", "dbname");
 
 https://www.youtube.com/watch?v=8-an9CTjsuk
+<br>
+![image](https://github.com/user-attachments/assets/0bd7abbb-f34a-44fd-b48e-0ec03d20706f)
+<br>
+![image](https://github.com/user-attachments/assets/6018f584-ecc6-4b38-a713-937c7bde746b)
+<br>
+![image](https://github.com/user-attachments/assets/9b2842d8-883a-4bc4-b0f4-eea226530e7e)
+
