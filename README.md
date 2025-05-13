@@ -4,7 +4,7 @@ S.T.C: Sistema de Transporte Cooperativo para deficientes visuais
 Altere as configurações de database de todos arquivos.
 <br><br>config.php e register.php
 
-<br><br>
+<br>
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'username');
 define('DB_PASSWORD', 'password');
