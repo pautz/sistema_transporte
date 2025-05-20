@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
-$username = "u839226731_cztuap";
-$password = "Meu6595869Trator";
-$dbname = "u839226731_meutrator";
+$username = "";
+$password = "";
+$dbname = "";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -120,9 +120,10 @@ $taxaCambioBNB = $_SESSION['bnb_rate'];
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='product-card'>";
-                echo "<h3>✈️ Destino: " . htmlspecialchars($row["destino"]) . "</h3>";
                 echo "<p title='ID do voo: " . htmlspecialchars($row["id"]) . "' aria-label='ID do voo: " . htmlspecialchars($row["id"]) . "'><strong>ID:</strong> " . htmlspecialchars($row["id"]) . "</p>";
-
+                echo "<h3 title='Destino do voo: " . htmlspecialchars($row["destino"]) . "' 
+        aria-label='Destino do voo: " . htmlspecialchars($row["destino"]) . "'>
+        ✈️ Destino: " . htmlspecialchars($row["destino"]) . "</h3>";
 $precoBRL = $row["preco"] * $taxaCambioBNB; // ✅ Agora está correto!
 echo "<p title='Preço do voo: BNB " . number_format($row["preco"], 8, ',', '.') . " (~R$ " . number_format($precoBRL, 2, ',', '.') . ")' 
         aria-label='Preço do voo: BNB " . number_format($row["preco"], 8, ',', '.') . " (~R$ " . number_format($precoBRL, 2, ',', '.') . ")'>
