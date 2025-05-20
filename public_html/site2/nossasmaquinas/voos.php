@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
-$username = "username";
-$password = "password";
-$dbname = "dbname";
+$username = "u839226731_cztuap";
+$password = "Meu6595869Trator";
+$dbname = "u839226731_meutrator";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -129,7 +129,8 @@ echo "<p><strong>Preço:</strong> BNB " . number_format($row["preco"], 8, ',', '
 
                 echo "<p><strong>Horário:</strong> " . htmlspecialchars($row["horario"]) . "</p>";
                 echo "<p class='metamask-info'><strong>Pagamento MetaMask:</strong> " . htmlspecialchars($row["metamask"]) . "</p>";
-                echo "<p><a href='https://carlitoslocacoes.com/site/reservapassagem.php?id=" . $row["id"] . "' class='btn'>🛫 Reservar Voo</a></p>";
+                echo "<p><a href='https://carlitoslocacoes.com/site/reservapassagem.php?id=" . $row["id"] . "' class='btn' title='Reservar Voo #" . htmlspecialchars($row["id"]) . "' aria-label='Reservar Voo #" . htmlspecialchars($row["id"]) . "'>🛫 Reservar Voo #" . htmlspecialchars($row["id"]) . "</a></p>";
+
                 echo "</div>";
             }
         } else {
