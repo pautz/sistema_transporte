@@ -121,11 +121,13 @@ $taxaCambioBNB = $_SESSION['bnb_rate'];
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='product-card'>";
                 echo "<h3>✈️ Destino: " . htmlspecialchars($row["destino"]) . "</h3>";
-                echo "<p><strong>ID:</strong> " . htmlspecialchars($row["id"]) . "</p>";
-                $precoBRL = $row["preco"] * $taxaCambio; 
+                echo "<p title='ID do voo: " . htmlspecialchars($row["id"]) . "' aria-label='ID do voo: " . htmlspecialchars($row["id"]) . "'><strong>ID:</strong> " . htmlspecialchars($row["id"]) . "</p>";
+
 $precoBRL = $row["preco"] * $taxaCambioBNB; // ✅ Agora está correto!
-echo "<p><strong>Preço:</strong> BNB " . number_format($row["preco"], 8, ',', '.') . 
-    " (~R$ " . number_format($precoBRL, 2, ',', '.') . ")</p>";
+echo "<p title='Preço do voo: BNB " . number_format($row["preco"], 8, ',', '.') . " (~R$ " . number_format($precoBRL, 2, ',', '.') . ")' 
+        aria-label='Preço do voo: BNB " . number_format($row["preco"], 8, ',', '.') . " (~R$ " . number_format($precoBRL, 2, ',', '.') . ")'>
+        <strong>Preço:</strong> BNB " . number_format($row["preco"], 8, ',', '.') . " (~R$ " . number_format($precoBRL, 2, ',', '.') . ")</p>";
+
 
                 echo "<p><strong>Horário:</strong> " . htmlspecialchars($row["horario"]) . "</p>";
                 echo "<p class='metamask-info'><strong>Pagamento MetaMask:</strong> " . htmlspecialchars($row["metamask"]) . "</p>";
