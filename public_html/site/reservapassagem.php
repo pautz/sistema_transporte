@@ -24,7 +24,7 @@ $eq_user = $_SESSION["eq_user"];
 
 
 // Conectar ao banco de dados
-$cx = new mysqli("127.0.0.1", "username", "password", "dbname");
+$cx = new mysqli("127.0.0.1", "u839226731_cztuap", "Meu6595869Trator", "u839226731_meutrator");
 if ($cx->connect_error) {
     die("Erro na conexão com o banco: " . $cx->connect_error);
 }
@@ -219,31 +219,42 @@ button:hover {
 </style>
 </head>
 <body>
-    <div class="wrapper">
-        <h2>Olá, <b><?php echo $username; ?></b>. Escolha seu assento e a data do voo.</h2>
+   <div class="wrapper" aria-label="Seleção de assento e data do voo">
+    <h2>Olá, <b><?php echo $username; ?></b>. Escolha seu assento e a data do voo.</h2>
 
-        <?php if ($vooSelecionado): ?>
-            <h3>Destino: <?php echo htmlspecialchars($vooSelecionado['destino']); ?> - BNB <?php echo number_format($vooSelecionado['preco'], 8, ',', '.'); ?>  
-(≈ R$ <?php echo number_format($vooSelecionado['preco'] * $bnbToBrlRate, 2, ',', '.'); ?>)</h3>
+    <?php if ($vooSelecionado): ?>
+        <h3 aria-label="Destino do voo: <?php echo htmlspecialchars($vooSelecionado['destino']); ?> - Preço: BNB <?php echo number_format($vooSelecionado['preco'], 8, ',', '.'); ?>  
+        (≈ R$ <?php echo number_format($vooSelecionado['preco'] * $bnbToBrlRate, 2, ',', '.'); ?>)">
+            Destino: <?php echo htmlspecialchars($vooSelecionado['destino']); ?> - BNB <?php echo number_format($vooSelecionado['preco'], 8, ',', '.'); ?>  
+            (≈ R$ <?php echo number_format($vooSelecionado['preco'] * $bnbToBrlRate, 2, ',', '.'); ?>)
+        </h3>
 
-            <label for="assento">Selecione um assento:</label>
-            <select id="assento">
-                <?php foreach ($assentosDisponiveis as $assento): ?>
-                    <option value="<?php echo $assento; ?>"><?php echo $assento; ?></option>
-                <?php endforeach; ?>
-                
-                <?php foreach ($assentosPagos as $assento): ?>
-                    <option value="<?php echo $assento; ?>" disabled class="ocupado"><?php echo $assento; ?> (Ocupado)</option>
-                <?php endforeach; ?>
-            </select>
+        <label for="assento" aria-label="Selecione um assento disponível">Selecione um assento:</label>
+        <select id="assento">
+            <?php foreach ($assentosDisponiveis as $assento): ?>
+                <option value="<?php echo $assento; ?>" aria-label="Assento <?php echo $assento; ?>">
+                    <?php echo $assento; ?>
+                </option>
+            <?php endforeach; ?>
 
-            <label for="datepicker">Selecione uma Data:</label>
-            <input type="text" id="datepicker">
-            <button id="confirmarReserva" disabled onclick="realizarPagamento()">Confirmar Reserva via MetaMask</button>
-        <?php else: ?>
-            <p>Voo não encontrado.</p>
-        <?php endif; ?>
-    </div>
+            <?php foreach ($assentosPagos as $assento): ?>
+                <option value="<?php echo $assento; ?>" disabled class="ocupado" aria-label="Assento <?php echo $assento; ?> já ocupado">
+                    <?php echo $assento; ?> (Ocupado)
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        <label for="datepicker" aria-label="Selecione a data do voo">Selecione uma Data:</label>
+        <input type="text" id="datepicker" aria-label="Campo para escolher a data do voo">
+        
+        <button id="confirmarReserva" disabled onclick="realizarPagamento()" aria-label="Botão para confirmar reserva via MetaMask">
+            Confirmar Reserva via MetaMask
+        </button>
+    <?php else: ?>
+        <p aria-label="Mensagem de erro: voo não encontrado">Voo não encontrado.</p>
+    <?php endif; ?>
+</div>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
