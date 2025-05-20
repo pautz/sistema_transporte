@@ -96,24 +96,24 @@ $taxaCambioBNB = $_SESSION['bnb_rate'];
     <br>
 
     <!-- Formulários de Pesquisa -->
-    <form method="get" action="" class="form-container">
-        <div>
-            <label for="search_destino">Pesquisar por Destino:</label>
-            <input type="text" id="search_destino" name="search_destino">
-        </div>
-        <div>
-            <label for="search_horario">Pesquisar por Horário:</label>
-            <input type="time" id="search_horario" name="search_horario">
-        </div>
-        <div>
-    <label for="search_id">Pesquisar por ID:</label>
-    <input type="number" id="search_id" name="search_id">
-</div>
+   <form method="get" action="" class="form-container" aria-label="Formulário de pesquisa de voos">
+    <div>
+        <label for="search_destino" id="label_destino">Pesquisar por Destino:</label>
+        <input type="text" id="search_destino" name="search_destino" aria-labelledby="label_destino">
+    </div>
+    <div>
+        <label for="search_horario" id="label_horario">Pesquisar por Horário:</label>
+        <input type="time" id="search_horario" name="search_horario" aria-labelledby="label_horario">
+    </div>
+    <div>
+        <label for="search_id" id="label_id">Pesquisar por ID:</label>
+        <input type="number" id="search_id" name="search_id" aria-labelledby="label_id">
+    </div>
+    <div>
+        <input type="submit" value="Pesquisar" class="btn" aria-label="Botão de pesquisa de voos">
+    </div>
+</form>
 
-        <div>
-            <input type="submit" value="Pesquisar" class="btn">
-        </div>
-    </form>
 
     <div class="product-container">
         <?php
@@ -130,7 +130,10 @@ echo "<p title='Preço do voo: BNB " . number_format($row["preco"], 8, ',', '.')
         <strong>Preço:</strong> BNB " . number_format($row["preco"], 8, ',', '.') . " (~R$ " . number_format($precoBRL, 2, ',', '.') . ")</p>";
 
 
-                echo "<p><strong>Horário:</strong> " . htmlspecialchars($row["horario"]) . "</p>";
+                echo "<p title='Horário do voo: " . htmlspecialchars($row["horario"]) . "' 
+        aria-label='Horário do voo: " . htmlspecialchars($row["horario"]) . "'>
+        <strong>Horário:</strong> " . htmlspecialchars($row["horario"]) . "</p>";
+
                 echo "<p class='metamask-info'><strong>Pagamento MetaMask:</strong> " . htmlspecialchars($row["metamask"]) . "</p>";
                 echo "<p><a href='https://carlitoslocacoes.com/site/reservapassagem.php?id=" . $row["id"] . "' class='btn' title='Reservar Voo #" . htmlspecialchars($row["id"]) . "' aria-label='Reservar Voo #" . htmlspecialchars($row["id"]) . "'>🛫 Reservar Voo #" . htmlspecialchars($row["id"]) . "</a></p>";
 
