@@ -9,7 +9,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 }
 
 // Conectar ao banco de dados
-$cx = new mysqli("127.0.0.1", "", "", "");
+$cx = new mysqli("127.0.0.1", "username", "password", "dbname");
 if ($cx->connect_error) {
     die("Erro na conexão: " . $cx->connect_error);
 }
