@@ -20,7 +20,12 @@ $data_filtro = isset($_GET['data_reserva']) ? $_GET['data_reserva'] : '';
 $destino_filtro = isset($_GET['destino']) ? $_GET['destino'] : '';
 $voo_id_filtro = isset($_GET['voo_id']) ? $_GET['voo_id'] : '';
 
-// Criando consulta dinâmica
+// Parâmetros de paginação
+$por_pagina = 10;
+$pagina_atual = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
+$offset = ($pagina_atual - 1) * $por_pagina;
+
+// Criando consulta dinâmica com paginação
 $query = "
     SELECT r.voo_id, v.destino, v.preco, r.numero_assento, r.data_reserva, r.transacao_hash 
     FROM reservas_voo r
@@ -47,15 +52,29 @@ if (!empty($voo_id_filtro)) {
     $types .= "s";
 }
 
+$query .= " LIMIT ? OFFSET ?";
+$params[] = $por_pagina;
+$types .= "ii";
+$params[] = $offset;
+
 // Preparar e executar consulta
 $stmt = $cx->prepare($query);
-if (!$stmt) {
-    die("Erro na consulta: " . $cx->error);
-}
-
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
+
+// Contagem total de registros para paginação
+$query_total = "SELECT COUNT(*) AS total FROM reservas_voo WHERE eq_user = ?";
+$stmt_total = $cx->prepare($query_total);
+$stmt_total->bind_param("s", $eq_user);
+$stmt_total->execute();
+$total_result = $stmt_total->get_result();
+$total_registros = $total_result->fetch_assoc()['total'];
+$total_paginas = ceil($total_registros / $por_pagina);
+
+$stmt_total->close();
+$stmt->close();
+$cx->close();
 ?>
 
 <!DOCTYPE html>
@@ -72,14 +91,15 @@ $result = $stmt->get_result();
 
     <form method="GET" class="mb-4 text-center">
         <label for="data_reserva" class="form-label">Filtrar por Data:</label>
-        <input type="date" id="data_reserva" name="data_reserva" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($data_filtro); ?>">
+        <input type="date" id="data_reserva" name="data_reserva" class="form-control w-50 mx-auto" value="<?= htmlspecialchars($data_filtro); ?>">
 
         <label for="destino" class="form-label mt-3">Filtrar por Destino:</label>
-        <input type="text" id="destino" name="destino" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($destino_filtro); ?>">
+        <input type="text" id="destino" name="destino" class="form-control w-50 mx-auto" value="<?= htmlspecialchars($destino_filtro); ?>">
 
         <label for="voo_id" class="form-label mt-3">Filtrar por ID do Voo:</label>
-        <input type="text" id="voo_id" name="voo_id" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($voo_id_filtro); ?>">
+        <input type="text" id="voo_id" name="voo_id" class="form-control w-50 mx-auto" value="<?= htmlspecialchars($voo_id_filtro); ?>">
 
+        <input type="hidden" name="pagina" value="1"> <!-- Sempre inicia na primeira página -->
         <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
     </form>
 
@@ -99,20 +119,39 @@ $result = $stmt->get_result();
                 <tbody>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($row['voo_id']); ?></td>
-                            <td><?php echo htmlspecialchars($row['destino']); ?></td>
-                            <td><?php echo number_format($row['preco'], 8, ',', '.'); ?></td>
-                            <td><?php echo htmlspecialchars($row['numero_assento']); ?></td>
-                            <td><?php echo htmlspecialchars($row['data_reserva']); ?></td>
-                            <td><?php echo htmlspecialchars($row['transacao_hash']); ?></td>
+                            <td><?= htmlspecialchars($row['voo_id']); ?></td>
+                            <td><?= htmlspecialchars($row['destino']); ?></td>
+                            <td><?= number_format($row['preco'], 8, ',', '.'); ?></td>
+                            <td><?= htmlspecialchars($row['numero_assento']); ?></td>
+                            <td><?= htmlspecialchars($row['data_reserva']); ?></td>
+                            <td><?= htmlspecialchars($row['transacao_hash']); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
             </table>
         </div>
 
+        <!-- Paginação -->
+        <nav class="text-center mt-4">
+            <ul class="pagination">
+                <?php if ($pagina_atual > 1): ?>
+                    <li class="page-item"><a class="page-link" href="?data_reserva=<?= urlencode($data_filtro); ?>&destino=<?= urlencode($destino_filtro); ?>&voo_id=<?= urlencode($voo_id_filtro); ?>&pagina=<?= $pagina_atual - 1 ?>">Anterior</a></li>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                    <li class="page-item <?= ($i == $pagina_atual) ? 'active' : '' ?>">
+                        <a class="page-link" href="?data_reserva=<?= urlencode($data_filtro); ?>&destino=<?= urlencode($destino_filtro); ?>&voo_id=<?= urlencode($voo_id_filtro); ?>&pagina=<?= $i ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <?php if ($pagina_atual < $total_paginas): ?>
+                    <li class="page-item"><a class="page-link" href="?data_reserva=<?= urlencode($data_filtro); ?>&destino=<?= urlencode($destino_filtro); ?>&voo_id=<?= urlencode($voo_id_filtro); ?>&pagina=<?= $pagina_atual + 1 ?>">Próximo</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+
         <div class="text-center mt-4">
-            <a href="gerar_pdf.php?data_reserva=<?php echo urlencode($data_filtro); ?>&destino=<?php echo urlencode($destino_filtro); ?>&voo_id=<?php echo urlencode($voo_id_filtro); ?>" class="btn btn-success">Baixar PDF</a>
+            <a href="gerar_pdf.php?data_reserva=<?= urlencode($data_filtro); ?>&destino=<?= urlencode($destino_filtro); ?>&voo_id=<?= urlencode($voo_id_filtro); ?>" class="btn btn-success">Baixar PDF</a>
         </div>
 
     <?php else: ?>
@@ -123,8 +162,3 @@ $result = $stmt->get_result();
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-<?php
-$stmt->close();
-$cx->close();
-?>
