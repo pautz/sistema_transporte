@@ -16,7 +16,7 @@ $_SESSION["eq_user"] = $_SESSION["username"];
 $eq_user = $_SESSION["eq_user"];
 
 // Conectar ao banco de dados
-$cx = new mysqli("127.0.0.1", "", "", "");
+$cx = new mysqli("127.0.0.1", "username", "password", "dbname");
 if ($cx->connect_error) {
     die("Erro na conexão com o banco: " . $cx->connect_error);
 }
