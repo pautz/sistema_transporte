@@ -1,8 +1,8 @@
 <?php
 require('fpdf/fpdf.php'); // Biblioteca FPDF para gerar PDFs
-
 session_start();
 
+// Verifica se o usuário está logado
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: login.php");
     exit;
@@ -14,12 +14,13 @@ if ($cx->connect_error) {
     die("Erro na conexão: " . $cx->connect_error);
 }
 
-// Obter o usuário logado
-$eq_user = $_SESSION["eq_user"];
+// Obtendo usuário logado e filtros
+$eq_user = $_SESSION["username"];
 $data_filtro = isset($_GET['data_reserva']) ? $_GET['data_reserva'] : '';
 $destino_filtro = isset($_GET['destino']) ? $_GET['destino'] : '';
+$voo_id_filtro = isset($_GET['voo_id']) ? $_GET['voo_id'] : '';
 
-// Criar consulta dinâmica com filtros
+// Criando consulta dinâmica
 $query = "
     SELECT r.voo_id, v.destino, v.preco, r.numero_assento, r.data_reserva, r.transacao_hash 
     FROM reservas_voo r
@@ -27,26 +28,32 @@ $query = "
     WHERE r.eq_user = ?
 ";
 
+$params = [$eq_user];
+$types = "s";
+
 if (!empty($data_filtro)) {
     $query .= " AND r.data_reserva = ?";
+    $params[] = $data_filtro;
+    $types .= "s";
 }
 if (!empty($destino_filtro)) {
     $query .= " AND v.destino = ?";
+    $params[] = $destino_filtro;
+    $types .= "s";
+}
+if (!empty($voo_id_filtro)) {
+    $query .= " AND r.voo_id = ?";
+    $params[] = $voo_id_filtro;
+    $types .= "s";
 }
 
+// Preparar e executar consulta
 $stmt = $cx->prepare($query);
-if (!$stmt) die("Erro na consulta: " . $cx->error);
-
-if (!empty($data_filtro) && !empty($destino_filtro)) {
-    $stmt->bind_param("sss", $eq_user, $data_filtro, $destino_filtro);
-} elseif (!empty($data_filtro)) {
-    $stmt->bind_param("ss", $eq_user, $data_filtro);
-} elseif (!empty($destino_filtro)) {
-    $stmt->bind_param("ss", $eq_user, $destino_filtro);
-} else {
-    $stmt->bind_param("s", $eq_user);
+if (!$stmt) {
+    die("Erro na consulta: " . $cx->error);
 }
 
+$stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
@@ -63,16 +70,18 @@ $result = $stmt->get_result();
 <div class="container mt-5">
     <h2 class="text-center mb-4">Suas Reservas</h2>
 
-    <form method="GET" class="mb-4 text-center" aria-label="Formulário de filtro de reservas">
-    <label for="data_reserva" class="form-label" id="label_data">Filtrar por Data:</label>
-    <input type="date" id="data_reserva" name="data_reserva" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($data_filtro); ?>" aria-labelledby="label_data">
+    <form method="GET" class="mb-4 text-center">
+        <label for="data_reserva" class="form-label">Filtrar por Data:</label>
+        <input type="date" id="data_reserva" name="data_reserva" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($data_filtro); ?>">
 
-    <label for="destino" class="form-label mt-3" id="label_destino">Filtrar por Destino:</label>
-    <input type="text" id="destino" name="destino" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($destino_filtro); ?>" aria-labelledby="label_destino">
+        <label for="destino" class="form-label mt-3">Filtrar por Destino:</label>
+        <input type="text" id="destino" name="destino" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($destino_filtro); ?>">
 
-    <button type="submit" class="btn btn-primary mt-2" aria-label="Botão para filtrar reservas">Filtrar</button>
-</form>
+        <label for="voo_id" class="form-label mt-3">Filtrar por ID do Voo:</label>
+        <input type="text" id="voo_id" name="voo_id" class="form-control w-50 mx-auto" value="<?php echo htmlspecialchars($voo_id_filtro); ?>">
 
+        <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
+    </form>
 
     <?php if ($result->num_rows > 0): ?>
         <div class="table-responsive">
@@ -90,25 +99,12 @@ $result = $stmt->get_result();
                 <tbody>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                           <td aria-label="Voo ID: <?php echo htmlspecialchars($row['voo_id']); ?>">
-    <?php echo htmlspecialchars($row['voo_id']); ?>
-</td>
-<td aria-label="Destino: <?php echo htmlspecialchars($row['destino']); ?>">
-    <?php echo htmlspecialchars($row['destino']); ?>
-</td>
-<td aria-label="Preço: BNB <?php echo number_format($row['preco'], 8, ',', '.'); ?>">
-    <?php echo number_format($row['preco'], 8, ',', '.'); ?>
-</td>
-<td aria-label="Número do Assento: <?php echo htmlspecialchars($row['numero_assento']); ?>">
-    <?php echo htmlspecialchars($row['numero_assento']); ?>
-</td>
-<td aria-label="Data da Reserva: <?php echo htmlspecialchars($row['data_reserva']); ?>">
-    <?php echo htmlspecialchars($row['data_reserva']); ?>
-</td>
-<td aria-label="Transação Hash: <?php echo htmlspecialchars($row['transacao_hash']); ?>">
-    <?php echo htmlspecialchars($row['transacao_hash']); ?>
-</td>
-
+                            <td><?php echo htmlspecialchars($row['voo_id']); ?></td>
+                            <td><?php echo htmlspecialchars($row['destino']); ?></td>
+                            <td><?php echo number_format($row['preco'], 8, ',', '.'); ?></td>
+                            <td><?php echo htmlspecialchars($row['numero_assento']); ?></td>
+                            <td><?php echo htmlspecialchars($row['data_reserva']); ?></td>
+                            <td><?php echo htmlspecialchars($row['transacao_hash']); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -116,7 +112,7 @@ $result = $stmt->get_result();
         </div>
 
         <div class="text-center mt-4">
-            <a href="gerar_pdf.php?data_reserva=<?php echo urlencode($data_filtro); ?>&destino=<?php echo urlencode($destino_filtro); ?>" class="btn btn-success">Baixar PDF</a>
+            <a href="gerar_pdf.php?data_reserva=<?php echo urlencode($data_filtro); ?>&destino=<?php echo urlencode($destino_filtro); ?>&voo_id=<?php echo urlencode($voo_id_filtro); ?>" class="btn btn-success">Baixar PDF</a>
         </div>
 
     <?php else: ?>
