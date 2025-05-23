@@ -119,6 +119,12 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 text-center">
             <a href="https://carlitoslocacoes.com/graficos.php" class="btn btn-outline-secondary btn-xl w-100" 
                aria-label="Descubra Óleo">Descubra Óleo</a>
+               
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 text-center">
+            <a href="https://carlitoslocacoes.com/site/identificacao.php" class="btn btn-outline-secondary btn-xl w-100" 
+               aria-label="Identificacao">Identificação*IMPORTANTE*</a>
+               
         </div>
     </div>
 
