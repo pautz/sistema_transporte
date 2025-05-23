@@ -19,7 +19,8 @@ $offset = ($pagina_atual - 1) * $por_pagina;
 
 // Criar consulta dinâmica com paginação
 $query = "
-    SELECT r.voo_id, v.destino, v.preco, r.numero_assento, r.data_reserva, r.transacao_hash, r.eq_user 
+    SELECT r.voo_id, v.destino, v.preco, r.numero_assento, r.data_reserva, r.transacao_hash, r.eq_user,
+           r.embarcado, r.data_embarque
     FROM reservas_voo r
     JOIN voos v ON r.voo_id = v.id
     WHERE 1=1
@@ -120,6 +121,8 @@ $cx->close();
                         <th>Assento</th>
                         <th>Data</th>
                         <th>Transação</th>
+                        <th>Embarcou?</th>
+                        <th>Data do Embarque</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -132,6 +135,8 @@ $cx->close();
                             <td><?= htmlspecialchars($reserva['numero_assento']) ?></td>
                             <td><?= htmlspecialchars($reserva['data_reserva']) ?></td>
                             <td><?= htmlspecialchars($reserva['transacao_hash']) ?></td>
+                            <td><?= $reserva['embarcado'] ? '<span class="text-success">Sim</span>' : '<span class="text-danger">Não</span>' ?></td>
+                            <td><?= $reserva['data_embarque'] ? htmlspecialchars($reserva['data_embarque']) : '—' ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -141,21 +146,15 @@ $cx->close();
             <nav class="text-center mt-4">
                 <ul class="pagination">
                     <?php if ($pagina_atual > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?transacao_hash=<?= $_GET['transacao_hash'] ?? '' ?>&voo_id=<?= $_GET['voo_id'] ?? '' ?>&data_reserva=<?= $_GET['data_reserva'] ?? '' ?>&pagina=<?= $pagina_atual - 1 ?>">Anterior</a>
-                        </li>
+                        <li class="page-item"><a class="page-link" href="?pagina=<?= $pagina_atual - 1 ?>">Anterior</a></li>
                     <?php endif; ?>
-
                     <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
                         <li class="page-item <?= ($i == $pagina_atual) ? 'active' : '' ?>">
-                            <a class="page-link" href="?transacao_hash=<?= $_GET['transacao_hash'] ?? '' ?>&voo_id=<?= $_GET['voo_id'] ?? '' ?>&data_reserva=<?= $_GET['data_reserva'] ?? '' ?>&pagina=<?= $i ?>"><?= $i ?></a>
+                            <a class="page-link" href="?pagina=<?= $i ?>"><?= $i ?></a>
                         </li>
                     <?php endfor; ?>
-
                     <?php if ($pagina_atual < $total_paginas): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?transacao_hash=<?= $_GET['transacao_hash'] ?? '' ?>&voo_id=<?= $_GET['voo_id'] ?? '' ?>&data_reserva=<?= $_GET['data_reserva'] ?? '' ?>&pagina=<?= $pagina_atual + 1 ?>">Próximo</a>
-                        </li>
+                        <li class="page-item"><a class="page-link" href="?pagina=<?= $pagina_atual + 1 ?>">Próximo</a></li>
                     <?php endif; ?>
                 </ul>
             </nav>
