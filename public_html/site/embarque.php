@@ -1,5 +1,4 @@
 <?php
-require('fpdf/fpdf.php');
 session_start();
 
 // Verifica se o usuário está logado
@@ -14,14 +13,14 @@ if ($cx->connect_error) {
     die("Erro na conexão: " . $cx->connect_error);
 }
 
-// Obtendo usuário logado
+// Obtendo usuário autenticado
 $eq_user = $_SESSION["username"];
 
-// Verificar se o passageiro já embarcou com transação hash
+// Verificar se o passageiro já embarcou com transação hash e usuário da sessão
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transacao_hash"])) {
     $transacao_hash = $_POST["transacao_hash"];
 
-    // Consulta para verificar se já embarcou
+    // Verifica se a reserva pertence ao usuário logado e se já embarcou
     $query_check = "SELECT embarcado FROM reservas_voo WHERE eq_user = ? AND transacao_hash = ?";
     $stmt_check = $cx->prepare($query_check);
     $stmt_check->bind_param("ss", $eq_user, $transacao_hash);
@@ -29,7 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transacao_hash"])) {
     $result_check = $stmt_check->get_result();
     $row = $result_check->fetch_assoc();
 
-    if ($row && $row["embarcado"] == 1) {
+    if (!$row) {
+        echo "<p class='text-danger text-center'>Erro: Esta reserva não pertence ao usuário logado.</p>";
+    } elseif ($row["embarcado"] == 1) {
         echo "<p class='text-danger text-center'>Este passageiro já embarcou e não pode ser alterado.</p>";
     } else {
         // Registra o embarque com timestamp imutável
