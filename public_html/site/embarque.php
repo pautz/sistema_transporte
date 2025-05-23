@@ -39,6 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transacao_hash"])) {
         $stmt_update->bind_param("ss", $eq_user, $transacao_hash);
         if ($stmt_update->execute()) {
             echo "<p class='text-success text-center'>Embarque registrado com sucesso!</p>";
+            session_destroy();
+            header("Location: login.php");
         } else {
             echo "<p class='text-danger text-center'>Erro ao registrar embarque.</p>";
         }
