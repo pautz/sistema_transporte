@@ -11,20 +11,23 @@ if ($cx->connect_error) {
 $transacao_hash = isset($_GET['transacao_hash']) ? trim($_GET['transacao_hash']) : '';
 $voo_id = isset($_GET['voo_id']) ? trim($_GET['voo_id']) : '';
 $data_reserva = isset($_GET['data_reserva']) ? trim($_GET['data_reserva']) : '';
+$documento = isset($_GET['documento']) ? trim($_GET['documento']) : ''; // Novo campo de pesquisa
 
 // Parâmetros de paginação
 $por_pagina = 10;
 $pagina_atual = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
 $offset = ($pagina_atual - 1) * $por_pagina;
 
-// Criar consulta dinâmica com paginação
+// Criar consulta dinâmica para incluir voo_ok
 $query = "
     SELECT r.voo_id, v.destino, v.preco, r.numero_assento, r.data_reserva, r.transacao_hash, r.eq_user,
-           r.embarcado, r.data_embarque
+           r.embarcado, r.data_embarque, i.documento, r.voo_ok
     FROM reservas_voo r
     JOIN voos v ON r.voo_id = v.id
+    LEFT JOIN identificacao i ON r.eq_user = i.username
     WHERE 1=1
 ";
+
 
 $params = [];
 $types = "";
@@ -44,6 +47,11 @@ if (!empty($data_reserva)) {
     $params[] = $data_reserva;
     $types .= "s";
 }
+if (!empty($documento)) {
+    $query .= " AND i.documento = ?";
+    $params[] = $documento;
+    $types .= "s";
+}
 
 $query .= " LIMIT ? OFFSET ?";
 $params[] = $por_pagina;
@@ -61,16 +69,11 @@ if (!empty($params)) {
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Armazenar os resultados
 $reservas = [];
 while ($row = $result->fetch_assoc()) {
     $reservas[] = $row;
 }
-
-// Contagem total de registros para paginação
-$query_total = "SELECT COUNT(*) AS total FROM reservas_voo";
-$total_result = $cx->query($query_total);
-$total_registros = $total_result->fetch_assoc()['total'];
-$total_paginas = ceil($total_registros / $por_pagina);
 
 $stmt->close();
 $cx->close();
@@ -90,6 +93,11 @@ $cx->close();
 
     <form method="GET" class="text-center">
         <div class="mb-3">
+            <label for="documento" class="form-label">Documento de Identidade:</label>
+            <input type="text" id="documento" name="documento" class="form-control w-50 mx-auto"
+                   value="<?= htmlspecialchars($_GET['documento'] ?? '') ?>">
+        </div>
+        <div class="mb-3">
             <label for="transacao_hash" class="form-label">Transação Hash:</label>
             <input type="text" id="transacao_hash" name="transacao_hash" class="form-control w-50 mx-auto"
                    value="<?= htmlspecialchars($_GET['transacao_hash'] ?? '') ?>">
@@ -104,7 +112,7 @@ $cx->close();
             <input type="date" id="data_reserva" name="data_reserva" class="form-control w-50 mx-auto"
                    value="<?= htmlspecialchars($_GET['data_reserva'] ?? '') ?>">
         </div>
-        <input type="hidden" name="pagina" value="1"> <!-- Sempre inicia na primeira página -->
+        <input type="hidden" name="pagina" value="1">
         <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
 
@@ -115,20 +123,23 @@ $cx->close();
                 <thead class="table-dark">
                     <tr>
                         <th>Usuário</th>
+                        <th>Documento</th>
                         <th>Voo ID</th>
                         <th>Destino</th>
                         <th>Preço (BNB)</th>
                         <th>Assento</th>
                         <th>Data</th>
                         <th>Transação</th>
-                        <th>Embarcou?</th>
+                        <th>Passagem</th>
                         <th>Data do Embarque</th>
+                        <th>Embarque?</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($reservas as $reserva): ?>
                         <tr>
                             <td><?= htmlspecialchars($reserva['eq_user']) ?></td>
+                            <td><?= htmlspecialchars($reserva['documento'] ?? 'Não cadastrado') ?></td>
                             <td><?= htmlspecialchars($reserva['voo_id']) ?></td>
                             <td><?= htmlspecialchars($reserva['destino']) ?></td>
                             <td><?= number_format($reserva['preco'], 8, ',', '.') ?></td>
@@ -137,27 +148,11 @@ $cx->close();
                             <td><?= htmlspecialchars($reserva['transacao_hash']) ?></td>
                             <td><?= $reserva['embarcado'] ? '<span class="text-success">Sim</span>' : '<span class="text-danger">Não</span>' ?></td>
                             <td><?= $reserva['data_embarque'] ? htmlspecialchars($reserva['data_embarque']) : '—' ?></td>
+                            <td><?= $reserva['voo_ok'] ? '<span class="text-success">Sim</span>' : '<span class="text-danger">Não</span>' ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-
-            <!-- Paginação -->
-            <nav class="text-center mt-4">
-                <ul class="pagination">
-                    <?php if ($pagina_atual > 1): ?>
-                        <li class="page-item"><a class="page-link" href="?pagina=<?= $pagina_atual - 1 ?>">Anterior</a></li>
-                    <?php endif; ?>
-                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
-                        <li class="page-item <?= ($i == $pagina_atual) ? 'active' : '' ?>">
-                            <a class="page-link" href="?pagina=<?= $i ?>"><?= $i ?></a>
-                        </li>
-                    <?php endfor; ?>
-                    <?php if ($pagina_atual < $total_paginas): ?>
-                        <li class="page-item"><a class="page-link" href="?pagina=<?= $pagina_atual + 1 ?>">Próximo</a></li>
-                    <?php endif; ?>
-                </ul>
-            </nav>
         </div>
     <?php else: ?>
         <p class="text-center text-danger mt-4">Nenhuma reserva encontrada.</p>
