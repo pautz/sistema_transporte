@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 23/05/2025 às 16:57
+-- Tempo de geração: 24/05/2025 às 21:25
 -- Versão do servidor: 10.11.10-MariaDB-log
 -- Versão do PHP: 7.2.34
 
@@ -119,6 +119,25 @@ INSERT INTO `historico_movimentos` (`id`, `eq_user`, `entrada_anterior`, `saida_
 (2, 'pofft', '2025-05-11 05:15:11', '2025-05-11 05:15:21'),
 (3, 'pofft', '2025-05-11 05:17:09', '2025-05-11 05:17:16'),
 (4, 'pofft', '2025-05-11 05:18:45', '2025-05-11 05:18:54');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `identificacao`
+--
+
+CREATE TABLE `identificacao` (
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `documento` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `identificacao`
+--
+
+INSERT INTO `identificacao` (`id`, `username`, `documento`) VALUES
+(1, 'admin', '04154652060');
 
 -- --------------------------------------------------------
 
@@ -482,31 +501,22 @@ CREATE TABLE `reservas_voo` (
   `numero_assento` varchar(50) NOT NULL,
   `eq_user` varchar(255) NOT NULL,
   `embarcado` tinyint(1) DEFAULT 0,
-  `data_embarque` datetime DEFAULT NULL
+  `data_embarque` datetime DEFAULT NULL,
+  `voo_ok` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Despejando dados para a tabela `reservas_voo`
 --
 
-INSERT INTO `reservas_voo` (`id`, `voo_id`, `assento`, `data_reserva`, `transacao_hash`, `pago`, `numero_assento`, `eq_user`, `embarcado`, `data_embarque`) VALUES
-(2, 3, '', '2025-05-22', '0x181c4ce0ae36a0d37bab41ae9f221cceca579951077367feffe14c1549deaa2f', 1, 'A4', 'c.pautz', 0, NULL),
-(3, 3, '', '2025-05-23', '0x74f070955529bd38f23a1575fb7423c95b46aad031419c20afd4065a3150afcb', 1, '0', 'c.pautz', 1, '2025-05-23 16:55:53'),
-(4, 3, '', '2025-05-23', '0x4c5cedc97580cbe211a22afbde73d6e043d65d0d267917b207183053efc18770', 1, 'A4', 'c.pautz', 1, '2025-05-23 16:40:44'),
-(5, 3, '', '2025-05-25', '0xafa1fac001da1de50655726ec873994ea1f30a90bb768fec52173b786b213c99', 1, 'A5', 'admin', 0, NULL);
-
---
--- Acionadores `reservas_voo`
---
-DELIMITER $$
-CREATE TRIGGER `impedir_alteracao_embarque` BEFORE UPDATE ON `reservas_voo` FOR EACH ROW BEGIN
-    IF OLD.embarcado = 1 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Erro: O status de embarque não pode ser alterado!';
-    END IF;
-END
-$$
-DELIMITER ;
+INSERT INTO `reservas_voo` (`id`, `voo_id`, `assento`, `data_reserva`, `transacao_hash`, `pago`, `numero_assento`, `eq_user`, `embarcado`, `data_embarque`, `voo_ok`) VALUES
+(2, 3, '', '2025-05-22', '0x181c4ce0ae36a0d37bab41ae9f221cceca579951077367feffe14c1549deaa2f', 1, 'A4', 'c.pautz', 1, '2025-05-23 17:38:24', 0),
+(3, 3, '', '2025-05-23', '0x74f070955529bd38f23a1575fb7423c95b46aad031419c20afd4065a3150afcb', 1, '0', 'c.pautz', 1, '2025-05-23 16:55:53', 0),
+(4, 3, '', '2025-05-23', '0x4c5cedc97580cbe211a22afbde73d6e043d65d0d267917b207183053efc18770', 1, 'A4', 'c.pautz', 1, '2025-05-23 16:40:44', 0),
+(5, 3, '', '2025-05-25', '0xafa1fac001da1de50655726ec873994ea1f30a90bb768fec52173b786b213c99', 1, 'A5', 'admin', 1, '2025-05-23 17:46:16', 1),
+(6, 3, '', '2025-05-23', '0xa221cbeb82269e5ef55d2e6b2fe00912334398c233da8b9d6d531d1fdfa31149', 1, 'A1', 'admin', 1, '2025-05-23 18:08:59', 1),
+(7, 3, '', '2025-05-27', '0xac9b55735010328dd545958a15e41b86bd60d0c0060d27325ff82d966f625882', 1, 'A1', 'admin', 1, '2025-05-23 20:19:33', 1),
+(8, 3, '', '2025-05-29', '0x5e7c65d7ef85385837ba0afc2d481cca1eb0a8adbb016379f875545060b65aad', 1, 'A1', 'admin', 1, '2025-05-23 20:33:21', 0);
 
 -- --------------------------------------------------------
 
@@ -844,6 +854,12 @@ ALTER TABLE `historico_movimentos`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `identificacao`
+--
+ALTER TABLE `identificacao`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `imagens_produto`
 --
 ALTER TABLE `imagens_produto`
@@ -995,6 +1011,12 @@ ALTER TABLE `historico_movimentos`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT de tabela `identificacao`
+--
+ALTER TABLE `identificacao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de tabela `imagens_produto`
 --
 ALTER TABLE `imagens_produto`
@@ -1064,7 +1086,7 @@ ALTER TABLE `reservas`
 -- AUTO_INCREMENT de tabela `reservas_voo`
 --
 ALTER TABLE `reservas_voo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de tabela `respostas`
