@@ -136,6 +136,10 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
                aria-label="Reserva de Quartos">Reserva Quartos</a>
         </div>
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 text-center">
+            <a href="https://carlitoslocacoes.com/site/embarque.php" class="btn btn-info btn-xl w-100" 
+               aria-label="Embarque">Passagem</a>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 text-center">
             <a href="https://carlitoslocacoes.com/site/destacar.php" class="btn btn-primary btn-xl w-100" 
                aria-label="Destacar informações">Destacar</a>
         </div>
