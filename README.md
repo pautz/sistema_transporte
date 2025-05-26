@@ -85,4 +85,10 @@ $dbname = "dbname";
 reservapassagem.php
 <br><br>
 $cx = new mysqli("127.0.0.1", "username", "password", "dbname");
+<br>
+![image](https://github.com/user-attachments/assets/9c4d5ee7-f7ef-445b-bd1b-55b71ab06f1b)
+<br>
+![image](https://github.com/user-attachments/assets/12053883-8b49-46ba-a197-002ef566591b)
+
+
 
