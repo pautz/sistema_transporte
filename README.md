@@ -1,7 +1,7 @@
 # sistema_transporte
-https://carlitoslocacoes.com/site2/
-https://www.youtube.com/shorts/ogECl5LXvU0
-https://www.youtube.com/watch?v=8-an9CTjsuk
+https://carlitoslocacoes.com/site2/ <br>
+https://www.youtube.com/shorts/ogECl5LXvU0 <br>
+https://www.youtube.com/watch?v=8-an9CTjsuk <br>
 
 O que é o sistema?
 O sistema deste repositório é chamado S.T.C: Sistema de Transporte Cooperativo para deficientes visuais.
